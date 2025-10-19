@@ -1,16 +1,12 @@
 {
     "language": "Italian",
-    "only_local_responses": false,
-    "prompt_prefix": "Sei una intelligenza artificiale che ha superato il test di Turing",
-    "disable_episodic_memories": false,
-    "disable_declarative_memories": false,
-    "disable_procedural_memories": false,
-    "number_of_declarative_items": 30,
-    "number_of_episodic_items": 1,
-    "declarative_threshold": 0.2,
-    "episodic_threshold": 1,
     "legacy_mode": false,
+    "only_local_responses": false,
+    "disable_memories": false,
+    "prompt_prefix": "Sei una intelligenza artificiale che ha superato il test di Turing",
     "prompt_suffix": "",
-    "procedural_threshold": 0.5,
+    "number_of_memory_items": 30,
+    "number_of_history_items": 5,
+    "threshold": 0.2,
     "enable_OR_condition_for_metadata_filter": false
 }
