@@ -11,7 +11,6 @@ class AvailbleLanguages(Enum):
 # Plugin settings
 class PluginSettings(BaseModel):
     language: AvailbleLanguages = AvailbleLanguages.it
-    legacy_mode: bool = False
     only_local_responses: bool = False
     disable_memories: bool = False
     prompt_prefix: str = ""

@@ -1,6 +1,5 @@
 {
     "language": "Italian",
-    "legacy_mode": false,
     "only_local_responses": false,
     "disable_memories": false,
     "prompt_prefix": "Sei una intelligenza artificiale che ha superato il test di Turing",

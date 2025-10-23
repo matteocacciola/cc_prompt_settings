@@ -6,7 +6,6 @@ from cat.memory.utils import VectorMemoryType
 
 # Default prompt settings
 lang = "Italian"
-legacy_mode = False
 only_local = False
 disable_memory = False
 custom_prefix = ""
@@ -19,9 +18,8 @@ metadata_or_filter = False
 
 
 def update_variables(settings, prompt_settings):
-    global lang, legacy_mode, only_local, disable_memory, custom_prefix, number_of_memory_items, number_of_history_items, threshold, tags, custom_suffix, metadata_or_filter
+    global lang, only_local, disable_memory, custom_prefix, number_of_memory_items, number_of_history_items, threshold, tags, custom_suffix, metadata_or_filter
     lang = settings["language"]
-    legacy_mode = settings["legacy_mode"]
     only_local = settings["only_local_responses"]
     disable_memory = settings["disable_memories"]
     custom_prefix = settings["prompt_prefix"]
@@ -33,8 +31,6 @@ def update_variables(settings, prompt_settings):
     if prompt_settings is not None:
         if "language" in prompt_settings:
             lang = prompt_settings["language"]
-        if "legacy_mode" in prompt_settings:
-            legacy_mode = prompt_settings["legacy_mode"]
         if "only_local_responses" in prompt_settings:
             only_local = prompt_settings["only_local_responses"]
         if "disable_memories" in prompt_settings:
@@ -74,17 +70,11 @@ def agent_prompt_prefix(prefix, cat) -> str:
 
 @hook(priority=10)
 def agent_prompt_suffix(prompt_suffix, cat) -> str:
-    global lang, legacy_mode
+    global lang
     if lang == "English":
-        if legacy_mode:
-            prompt_suffix = prompt_suffix_legacy_mode_en(prompt_suffix, cat)
-        else:
-            prompt_suffix = prompt_suffix_en(prompt_suffix, cat)
+        prompt_suffix = prompt_suffix_en(prompt_suffix, cat)
     if lang == "Italian":
-        if legacy_mode:
-            prompt_suffix = prompt_suffix_legacy_mode_it(prompt_suffix, cat)
-        else:
-            prompt_suffix = prompt_suffix_it(prompt_suffix, cat)
+        prompt_suffix = prompt_suffix_it(prompt_suffix, cat)
     return prompt_suffix
 
 
