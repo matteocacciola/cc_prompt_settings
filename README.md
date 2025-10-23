@@ -12,7 +12,7 @@ Here're the settings you can change with this plugin:
 - Prompt suffix: custom prompt suffix
 - Disable declarative memory: not use declarative memory to generate the LLM response
 - Disable tools: disable usage of tools
-- Number of declarative items: number of declarative items to insert in the prompt and setn to LLM
+- Number of declarative items: number of declarative items to insert in the prompt and set to LLM
 - Declarative threshold: minimum score of declarative items to get retrieved from vector database
 - Enable OR Condition for Metadata Filter: enable to change from MUST (=AND) to SHOULD (=OR) the metadata filter on Qrdant queries
 
