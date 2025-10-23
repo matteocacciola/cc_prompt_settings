@@ -1,4 +1,4 @@
-from langchain.docstore.document import Document
+from langchain_core.documents import Document as LangChainDocument
 from cat.mad_hatter.decorators import hook
 from cat.memory.messages import UserMessage
 from cat.memory.utils import VectorMemoryType
