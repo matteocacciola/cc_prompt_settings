@@ -166,10 +166,10 @@ def agent_fast_reply(fast_reply, cat):
 def after_cat_recalls_memories(cat) -> None:
     global metadata_or_filter, threshold, number_of_memory_items
     if metadata_or_filter:
-        if tags := cat.working_memory.user_message_json.get("tags"):
-            user_message = cat.working_memory.user_message_json.get("text")
+        if tags_ := getattr(cat.working_memory.user_message, "tags"):
+            user_message = cat.working_memory.user_message.text
             user_message_embedding = cat.embedder.embed_query(user_message)
-            metadata = tags
+            metadata = tags_
             memories = cat.vector_memory_handler.search(
                 collection_name=str(VectorMemoryType.PROCEDURAL),
                 query_vector=user_message_embedding,
@@ -185,7 +185,7 @@ def after_cat_recalls_memories(cat) -> None:
             for m in memories:
                 langchain_documents_from_points.append(
                     (
-                        Document(
+                        LangChainDocument(
                             page_content=m.payload.get("page_content"),
                             metadata=m.payload.get("metadata") or {},
                         ),
