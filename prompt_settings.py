@@ -1,7 +1,7 @@
 from langchain_core.documents import Document as LangChainDocument
-from cat.mad_hatter.decorators import hook
-from cat.memory.messages import UserMessage
-from cat.memory.utils import VectorMemoryType
+from cat import hook
+from cat.services.memory.messages import UserMessage
+from cat.services.memory.utils import VectorMemoryType
 
 
 # Default prompt settings
@@ -112,7 +112,6 @@ def prompt_suffix_legacy_mode_it(prompt_suffix, cat) -> str:
     global disable_memory
     if disable_memory:
         prompt_suffix = ""
-
     else:
         prompt_suffix = """
 # Contesto
