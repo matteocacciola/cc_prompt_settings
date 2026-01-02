@@ -1,7 +1,11 @@
+from typing import Dict
+
 from langchain_core.documents import Document as LangChainDocument
 from cat import hook
+from cat.looking_glass.stray_cat import AgentOutput
 from cat.services.memory.messages import UserMessage
-from cat.services.memory.utils import VectorMemoryType
+from cat.services.memory.utils import VectorMemoryType, RecallSettings
+
 
 
 # Default prompt settings
@@ -17,7 +21,7 @@ custom_suffix = ""
 metadata_or_filter = False
 
 
-def update_variables(settings, prompt_settings):
+def update_variables(settings: Dict, prompt_settings: Dict | None):
     global lang, only_local, disable_memory, custom_prefix, number_of_memory_items, number_of_history_items, threshold, tags, custom_suffix, metadata_or_filter
     lang = settings["language"]
     only_local = settings["only_local_responses"]
@@ -62,38 +66,23 @@ def before_cat_reads_message(user_message: UserMessage, cat):
 
 
 @hook(priority=10)
-def agent_prompt_prefix(prefix, cat) -> str:
+def agent_prompt_prefix(prefix: str, cat) -> str:
     global custom_prefix
     prefix = custom_prefix
     return prefix
 
 
 @hook(priority=10)
-def agent_prompt_suffix(prompt_suffix, cat) -> str:
+def agent_prompt_suffix(prompt_suffix: str, cat) -> str:
     global lang
     if lang == "English":
-        prompt_suffix = prompt_suffix_en(prompt_suffix, cat)
+        prompt_suffix = prompt_suffix_en()
     if lang == "Italian":
-        prompt_suffix = prompt_suffix_it(prompt_suffix, cat)
+        prompt_suffix = prompt_suffix_it()
     return prompt_suffix
 
 
-def prompt_suffix_legacy_mode_en(prompt_suffix, cat) -> str:
-    global disable_memory, custom_suffix
-    if disable_memory:
-        prompt_suffix = ""
-    else:
-        prompt_suffix = (
-                custom_suffix +
-"""
-# Context
-{context}
-"""
-        )
-    return prompt_suffix
-
-
-def prompt_suffix_en(prompt_suffix, cat) -> str:
+def prompt_suffix_en() -> str:
     global disable_memory
     if disable_memory:
         prompt_suffix = ""
@@ -108,19 +97,7 @@ def prompt_suffix_en(prompt_suffix, cat) -> str:
     return prompt_suffix
 
 
-def prompt_suffix_legacy_mode_it(prompt_suffix, cat) -> str:
-    global disable_memory
-    if disable_memory:
-        prompt_suffix = ""
-    else:
-        prompt_suffix = """
-# Contesto
-{context}
-"""
-    return prompt_suffix
-
-
-def prompt_suffix_it(prompt_suffix, cat) -> str:
+def prompt_suffix_it() -> str:
     global disable_memory
     if disable_memory:
         prompt_suffix = ""
@@ -133,32 +110,32 @@ def prompt_suffix_it(prompt_suffix, cat) -> str:
 
 
 @hook(priority=1)
-def before_cat_recalls_memories(config: dict, cat) -> dict:
+def before_cat_recalls_memories(config: RecallSettings, cat) -> dict:
     global disable_memory, number_of_memory_items, number_of_history_items, tags
     if disable_memory:
         custom_k = 1
-        config["threshold"] = 1
+        config.threshold = 1
     else:
         custom_k = number_of_memory_items
-    config["k"] = custom_k
-    config["threshold"] = threshold
-    config["latest_n_history"] = number_of_history_items
+    config.k = custom_k
+    config.threshold = threshold
+    config.latest_n_history = number_of_history_items
     if tags:
-        config["metadata"] = tags
+        config.metadata = tags
 
     return config
 
 
 @hook(priority=1)
-def agent_fast_reply(fast_reply, cat):
+def agent_fast_reply(fast_reply: AgentOutput, cat):
     global lang, only_local
     if only_local:
         num_memories = len(cat.working_memory.declarative_memories)
         if num_memories == 0:
             if lang == "Italian":
-                fast_reply["output"] = "Scusami, non ho informazioni su questo tema."
+                fast_reply.output = "Scusami, non ho informazioni su questo tema."
             else:
-                fast_reply["output"] = "Sorry, I have no information on this topic."
+                fast_reply.output = "Sorry, I have no information on this topic."
     return fast_reply
 
 
