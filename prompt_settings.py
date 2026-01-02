@@ -1,9 +1,7 @@
 from typing import Dict
 
 from langchain_core.documents import Document as LangChainDocument
-from cat import hook
-from cat.looking_glass.stray_cat import AgentOutput
-from cat.services.memory.messages import UserMessage
+from cat import hook, AgentOutput, UserMessage
 from cat.services.memory.utils import VectorMemoryType, RecallSettings
 
 
@@ -110,7 +108,7 @@ def prompt_suffix_it() -> str:
 
 
 @hook(priority=1)
-def before_cat_recalls_memories(config: RecallSettings, cat) -> dict:
+def before_cat_recalls_memories(config: RecallSettings, cat) -> RecallSettings:
     global disable_memory, number_of_memory_items, number_of_history_items, tags
     if disable_memory:
         custom_k = 1
@@ -127,7 +125,7 @@ def before_cat_recalls_memories(config: RecallSettings, cat) -> dict:
 
 
 @hook(priority=1)
-def agent_fast_reply(fast_reply: AgentOutput, cat):
+def agent_fast_reply(fast_reply: AgentOutput, cat) -> AgentOutput:
     global lang, only_local
     if only_local:
         num_memories = len(cat.working_memory.declarative_memories)
