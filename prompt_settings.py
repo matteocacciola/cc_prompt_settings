@@ -1,8 +1,8 @@
 from typing import Dict
 
 from langchain_core.documents import Document as LangChainDocument
-from cat import hook, AgentOutput, UserMessage
-from cat.services.memory.utils import VectorMemoryType, RecallSettings
+from cat import hook, AgenticWorkflowOutput, UserMessage, RecallSettings
+from cat.services.memory.models import VectorMemoryType
 
 
 
@@ -125,7 +125,7 @@ def before_cat_recalls_memories(config: RecallSettings, cat) -> RecallSettings:
 
 
 @hook(priority=1)
-def agent_fast_reply(fast_reply: AgentOutput, cat) -> AgentOutput:
+def agent_fast_reply(fast_reply: AgenticWorkflowOutput, cat) -> AgenticWorkflowOutput:
     global lang, only_local
     if only_local:
         num_memories = len(cat.working_memory.declarative_memories)
