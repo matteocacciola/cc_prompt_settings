@@ -5,7 +5,6 @@ from cat import hook, AgenticWorkflowOutput, UserMessage, RecallSettings
 from cat.services.memory.models import VectorMemoryType
 
 
-
 # Default prompt settings
 lang = "Italian"
 only_local = False
@@ -125,16 +124,19 @@ def before_cat_recalls_memories(config: RecallSettings, cat) -> RecallSettings:
 
 
 @hook(priority=1)
-def agent_fast_reply(fast_reply: AgenticWorkflowOutput, cat) -> AgenticWorkflowOutput:
+def agent_fast_reply(cat) -> AgenticWorkflowOutput | None:
     global lang, only_local
-    if only_local:
-        num_memories = len(cat.working_memory.declarative_memories)
-        if num_memories == 0:
-            if lang == "Italian":
-                fast_reply.output = "Scusami, non ho informazioni su questo tema."
-            else:
-                fast_reply.output = "Sorry, I have no information on this topic."
-    return fast_reply
+    if not only_local:
+        return None
+
+    num_memories = len(cat.working_memory.declarative_memories)
+    if num_memories > 0:
+        return None
+
+    if lang == "Italian":
+        return AgenticWorkflowOutput(output="Scusami, non ho informazioni su questo tema.")
+
+    return AgenticWorkflowOutput(output="Sorry, I have no information on this topic.")
 
 
 @hook
