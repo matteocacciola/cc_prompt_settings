@@ -1,8 +1,6 @@
 from typing import Dict
 
-from langchain_core.documents import Document as LangChainDocument
 from cat import hook, AgenticWorkflowOutput, UserMessage, RecallSettings
-from cat.services.memory.models import VectorMemoryType
 
 
 # Default prompt settings
@@ -118,7 +116,7 @@ def before_cat_recalls_memories(config: RecallSettings, cat) -> RecallSettings:
     config.threshold = threshold
     config.latest_n_history = number_of_history_items
     if tags:
-        config.metadata = tags
+        config.metadata |= tags
 
     return config
 
@@ -140,35 +138,11 @@ def agent_fast_reply(cat) -> AgenticWorkflowOutput | None:
 
 
 @hook
-def after_cat_recalls_memories(cat) -> None:
+def after_cat_recalls_memories(config: RecallSettings, cat) -> None:
     global metadata_or_filter, threshold, number_of_memory_items
-    if metadata_or_filter:
-        if tags_ := getattr(cat.working_memory.user_message, "tags"):
-            user_message = cat.working_memory.user_message.text
-            user_message_embedding = cat.embedder.embed_query(user_message)
-            metadata = tags_
-            memories = cat.vector_memory_handler.search(
-                collection_name=str(VectorMemoryType.PROCEDURAL),
-                query_vector=user_message_embedding,
-                query_filter=cat.vector_memory_handler.filter_from_dict(metadata),
-                with_payload=True,
-                with_vectors=True,
-                limit=number_of_memory_items,
-                score_threshold=threshold,
-            )
 
-            # convert Qdrant points to langchain.Document
-            langchain_documents_from_points = []
-            for m in memories:
-                langchain_documents_from_points.append(
-                    (
-                        LangChainDocument(
-                            page_content=m.payload.get("page_content"),
-                            metadata=m.payload.get("metadata") or {},
-                        ),
-                        m.score,
-                        m.vector,
-                        m.id,
-                    )
-                )
-            cat.working_memory.declarative_memories = langchain_documents_from_points
+    if not metadata_or_filter or not (tags_ := getattr(cat.working_memory.user_message, "tags")):
+        return
+
+    config.metadata |= tags_
+    cat.recall_context_to_working_memory(config)
