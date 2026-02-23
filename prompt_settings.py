@@ -127,7 +127,7 @@ def agent_fast_reply(cat) -> AgenticWorkflowOutput | None:
     if not only_local:
         return None
 
-    num_memories = len(cat.working_memory.declarative_memories)
+    num_memories = len(cat.working_memory.context_memories)
     if num_memories > 0:
         return None
 
