@@ -1,6 +1,6 @@
-<h1 align="center" id="title">Cheshire Cat Prompt Settings</h1>
+<h1 align="center" id="title">Grinning Cat Prompt Settings</h1>
 
-<p id="description">This is a plugin for the <a href="https://github.com/cheshire-cat-ai/core">Cheshire Cat </a>Project which allows you to change the default prompt settings, also dynamically on websocket messages</p>
+<p id="description">This is a plugin for the <a href="https://github.com/matteocacciola/grinning-cat-core">Grinning Cat </a>Project which allows you to change the default prompt settings, also dynamically on websocket messages</p>
   
 <h2>🧐 Plugins Settings</h2>
 
@@ -19,7 +19,7 @@ Here're the settings you can change with this plugin:
 <h2>🛠️ Installation:</h2>
 
 <p>1. Clone this repo and copy it on cat plugins folder</p>
-<p>2. Install from admin panel on the [Cheshire Cat Web Admin](https://github.com/matteocacciola/cheshirecat-admin)</p>
+<p>2. Install from admin panel on the [Grinning Cat Web Admin](https://github.com/matteocacciola/grinning-cat-admin)</p>
 
 <h2>😾 Dynamic settings change</h2>
 You can change dynamically the settings of plugin adding a prompt_settings json on the websocket message. You can also send a tags to filter the query on QDRANT database, here an example:
