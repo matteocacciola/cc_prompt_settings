@@ -1,49 +1,48 @@
 from typing import Dict
+from translate import Translator
+from langdetect import detect, DetectorFactory
 
 from cat import hook, AgenticWorkflowOutput, UserMessage, RecallSettings
 
+# to guarantee consistent results (recommended)
+DetectorFactory.seed = 0
 
 # Default prompt settings
-lang = "Italian"
 only_local = False
 disable_memory = False
 custom_prefix = ""
+custom_suffix = ""
+custom_reply_no_memory = ""
 number_of_memory_items = 5
 number_of_history_items = 5
 threshold = 0.5
 tags = {}
-custom_suffix = ""
 metadata_or_filter = False
 
 
-def update_variables(settings: Dict, prompt_settings: Dict | None):
-    global lang, only_local, disable_memory, custom_prefix, number_of_memory_items, number_of_history_items, threshold, tags, custom_suffix, metadata_or_filter
-    lang = settings["language"]
-    only_local = settings["only_local_responses"]
-    disable_memory = settings["disable_memories"]
-    custom_prefix = settings["prompt_prefix"]
-    number_of_memory_items = settings["number_of_memory_items"]
-    number_of_history_items = settings["number_of_history_items"]
-    threshold = settings["threshold"]
-    metadata_or_filter = settings["enable_OR_condition_for_metadata_filter"]
+def get_message_language(message):
+    try:
+        lang = detect(message)
+        return lang  # es. 'it', 'en', 'fr'
+    except:
+        # Fallback
+        return "en"
 
-    if prompt_settings is not None:
-        if "language" in prompt_settings:
-            lang = prompt_settings["language"]
-        if "only_local_responses" in prompt_settings:
-            only_local = prompt_settings["only_local_responses"]
-        if "disable_memories" in prompt_settings:
-            disable_memory = prompt_settings["disable_memories"]
-        if "prompt_prefix" in prompt_settings:
-            custom_prefix = prompt_settings["prompt_prefix"]
-        if "prompt_suffix" in prompt_settings:
-            custom_suffix = prompt_settings["prompt_suffix"]
-        if "number_of_memory_items" in prompt_settings:
-            number_of_memory_items = prompt_settings["number_of_memory_items"]
-        if "number_of_history_items" in prompt_settings:
-            number_of_history_items = prompt_settings["number_of_history_items"]
-        if "threshold" in prompt_settings:
-            threshold = prompt_settings["threshold"]
+
+def update_variables(settings: Dict, prompt_settings: Dict | None):
+    global only_local, disable_memory, custom_prefix, custom_suffix, custom_reply_no_memory, number_of_memory_items, number_of_history_items, threshold, tags, metadata_or_filter
+
+    prompt_settings = prompt_settings or {}
+
+    only_local = prompt_settings.get("only_local_responses", settings["only_local_responses"])
+    disable_memory = prompt_settings.get("disable_memories", settings["disable_memories"])
+    custom_prefix = prompt_settings.get("prompt_prefix", settings["prompt_prefix"])
+    custom_suffix = prompt_settings.get("prompt_suffix", settings["prompt_suffix"])
+    custom_reply_no_memory = prompt_settings.get("reply_no_memory", settings["reply_no_memory"])
+    number_of_memory_items = prompt_settings.get("number_of_memory_items", settings["number_of_memory_items"])
+    number_of_history_items = prompt_settings.get("number_of_history_items", settings["number_of_history_items"])
+    threshold = prompt_settings.get("threshold", settings["threshold"])
+    metadata_or_filter = settings["enable_OR_condition_for_metadata_filter"]
 
 
 @hook(priority=10)
@@ -53,9 +52,9 @@ def before_cat_reads_message(user_message: UserMessage, cat):
     prompt_settings = None
     tags = {}
     if "prompt_settings" in user_message:
-        prompt_settings = user_message.prompt_settings
+        prompt_settings = user_message.get("prompt_settings")
     if "tags" in user_message:
-        tags = user_message.tags
+        tags = user_message.get("tags")
     update_variables(settings, prompt_settings)
     return user_message
 
@@ -69,39 +68,14 @@ def agent_prompt_prefix(prefix: str, cat) -> str:
 
 @hook(priority=10)
 def agent_prompt_suffix(prompt_suffix: str, cat) -> str:
-    global lang
-    if lang == "English":
-        prompt_suffix = prompt_suffix_en()
-    if lang == "Italian":
-        prompt_suffix = prompt_suffix_it()
-    return prompt_suffix
-
-
-def prompt_suffix_en() -> str:
     global disable_memory
     if disable_memory:
-        prompt_suffix = ""
+        return ""
 
-    else:
-        prompt_suffix = (custom_suffix +
- """
+    return custom_suffix + """
  # Context
  {context}
  """
-        )
-    return prompt_suffix
-
-
-def prompt_suffix_it() -> str:
-    global disable_memory
-    if disable_memory:
-        prompt_suffix = ""
-    else:
-        prompt_suffix = """
-# Contesto
-{context}
-"""
-    return prompt_suffix
 
 
 @hook(priority=1)
@@ -123,7 +97,7 @@ def before_cat_recalls_memories(config: RecallSettings, cat) -> RecallSettings:
 
 @hook(priority=1)
 def agent_fast_reply(cat) -> AgenticWorkflowOutput | None:
-    global lang, only_local
+    global only_local, custom_reply_no_memory
     if not only_local:
         return None
 
@@ -131,10 +105,12 @@ def agent_fast_reply(cat) -> AgenticWorkflowOutput | None:
     if num_memories > 0:
         return None
 
-    if lang == "Italian":
-        return AgenticWorkflowOutput(output="Scusami, non ho informazioni su questo tema.")
+    lang = get_message_language(cat.working_memory.user_message.text)
 
-    return AgenticWorkflowOutput(output="Sorry, I have no information on this topic.")
+    translator = Translator(to_lang=lang)
+    message = translator.translate(custom_reply_no_memory)
+
+    return AgenticWorkflowOutput(output=message)
 
 
 @hook

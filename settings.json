@@ -1,9 +1,9 @@
 {
-    "language": "Italian",
     "only_local_responses": false,
     "disable_memories": false,
     "prompt_prefix": "Sei una intelligenza artificiale che ha superato il test di Turing",
     "prompt_suffix": "",
+    "reply_no_memory": "Non ho informazioni su questo tema.",
     "number_of_memory_items": 30,
     "number_of_history_items": 5,
     "threshold": 0.2,

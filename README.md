@@ -4,17 +4,17 @@
   
 <h2>🧐 Plugins Settings</h2>
 
-Here're the settings you can change with this plugin:
+Here are the settings you can change with this plugin:
 
-- Language: set the language of the prompt sent to LLM (Italian or English)
 - Only local response: force cheshire cat to respond only with data previusly sent into the rabbit hole
+- Disable memory: do not use context memory to generate the LLM response
 - Prompt prefix: custom prompt prefix
 - Prompt suffix: custom prompt suffix
-- Disable declarative memory: not use declarative memory to generate the LLM response
-- Disable tools: disable usage of tools
-- Number of declarative items: number of declarative items to insert in the prompt and set to LLM
-- Declarative threshold: minimum score of declarative items to get retrieved from vector database
-- Enable OR Condition for Metadata Filter: enable to change from MUST (=AND) to SHOULD (=OR) the metadata filter on Qrdant queries
+- Reply message with no memory: if the LLM response is empty, use this message as reply
+- Number of memory items: number of context items to insert in the prompt and set to LLM
+- Number of history items: number of past messages to use as additional context for the LLM
+- Context threshold: minimum score of context items to get retrieved from the vector database
+- Enable OR Condition for Metadata Filter: enable to change from MUST (=AND) to SHOULD (=OR) the metadata filter on Vector Memory queries
 
 <h2>🛠️ Installation:</h2>
 
@@ -28,7 +28,6 @@ You can change dynamically the settings of plugin adding a prompt_settings json 
 {
      "text": user_message,
      "prompt_settings": {
-        "language": "Italian",
         "disable_memories": "True",
         "prompt_prefix": "You are an expert Python Developer",
      },
